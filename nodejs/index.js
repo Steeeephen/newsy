@@ -4,7 +4,7 @@ var port = 3000;
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 //sets up database, pointing to file below
-var dbConfig = require('C:/Users/Stephen/Documents/College Work/CS615/Project/config/database.config.js');
+var dbConfig = require('/config/database.config.js');
 
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -26,7 +26,7 @@ mongoose.connect(dbConfig.url, {
 });
 
 //sets up routes to the endpoints defined in file below
-var routes = require('C:/Users/Stephen/Documents/College Work/CS615/Project/app/routes/channel.routes.js')(app);
+var routes = require('app/routes/channel.routes.js')(app);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}!`)
