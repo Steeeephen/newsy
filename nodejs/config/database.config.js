@@ -1,4 +1,4 @@
 module.exports = {
   //sets up db at this address
-    url: 'mongodb://localhost:27017/news-api'
+    url: 'mongodb+srv://stephen:l98waDrJSyCUspzw@newsy-98fzw.mongodb.net/test?retryWrites=true&w=majority'
 }
