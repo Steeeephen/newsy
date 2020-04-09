@@ -45,13 +45,13 @@
                     <div class="row register-form">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <form class="submit" name="sign_up" action="#" onsubmit="return validateForm(this);" method="post">
-                                    <input type="email" class="form-control" placeholder="Email *" value="" />
+                                <form method="POST" role="form" class="form-horizontal" oninput='password.setCustomValidity(password.value != confirm_password.value ? "Passwords do not match." : "")'>
+                                    <input type="email" class="form-control" placeholder="Email *" value="" name="email"/>
                                     <input type="password" class="form-control" placeholder="New Password *" value="" name="password" />
-                                    <input type="password" class="form-control" placeholder="Confirm New Password *" value="" />
+                                    <input type="password" class="form-control" placeholder="Confirm New Password *" value="" name="confirm_password"/>
                                     <!-- <input type="submit" class="btnRegister" value="Reset password" /> -->
 
-                                    <button type="submit" class="btnRegister">Reset password</button>
+                                    <input type="submit" class="btnRegister" value = "Reset password" />
                                     <ul id="errors"></ul>
                                 </form>
 
