@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NEWSY</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <script src="validation.js"></script>
+    <script type="text/javascript">
+        var validateForm = $('form').serializeArray();
+
+        function get() {
+            $.post('jqtest/test', {
+                    name: $('form[name="sign_up"] input[password="password"] input[email="email"]').val()
+                },
+                function(output) {
+                    $('#errors').html(output).show();
+                }
+            );
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="container register">
+        <div class="row">
+            <div class="col-md-3 register-left">
+                <img src="https://i.ibb.co/k34r7DG/Newspaper-PNG-File.png" alt="" />
+                <h3>Welcome</h3>
+                <p>Register or Login to Newsy</p>
+
+                <a href="login.html" class="btn btn-xs btn-primary"> Login </a>
+                <a href="Index.html" class="btn btn-xs btn-primary"> Register </a>
+            </div>
+            <div class="col-md-9 register-right">
+
+                <div class="tab-pane fade show" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <h3 class="register-heading">Reset Password</h3>
+                    <div class="row register-form">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <form class="submit" name="sign_up" action="#" onsubmit="return validateForm(this);" method="post">
+                                    <input type="email" class="form-control" placeholder="Email *" value="" />
+                                    <input type="password" class="form-control" placeholder="New Password *" value="" name="password" />
+                                    <input type="password" class="form-control" placeholder="Confirm New Password *" value="" />
+                                    <!-- <input type="submit" class="btnRegister" value="Reset password" /> -->
+
+                                    <button type="submit" class="btnRegister">Reset password</button>
+                                    <ul id="errors"></ul>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+</body>
+
+</html>
