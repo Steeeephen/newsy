@@ -12,29 +12,44 @@ exports.createNewChannel = (req, res) => {
 
 //get all channels
 exports.getAll = (req, res) => {
-  Channel.find({}, function(err, channel){
+  Channel.find({}, {name:1, _id:0} ,function(err, channel){
     if(err)
       res.send(err);
     res.send(channel);
   });
 };
 
-// get single channel, currently hardcoded where id = a1
-exports.getOne = (req, res) => {
-  Channel.find({ id: a1 }, function(err, channel){
+//search; get all channels matching a regex, var term, which will be whatever the editor types in
+exports.search = (req, res) => {
+  var term;
+  //var term = document.getElementById("searchbar");
+  Channel.find({name: new RegExp('^.*'+term+'.*$', "i")}, {name:1, _id:0} ,function(err, channel){
     if(err)
       res.send(err);
     res.send(channel);
   });
 };
 
-//update channel
-exports.disableChannel = (req, res) => {
-  var myquery = { id: "a1" };
-  var newvalues = { $set: { enabled: false } };
-  Channel.updateOne(myquery, newvalues, function(err, res) {
-    if (err)
+exports.updateName = (req, res) => {
+  var original;
+  //var original = document.getElementById("name");
+  var update;
+  //var update = document.getElementById("user-typed-name")
+  Channel.updateOne({name: original},{name: update} ,function(err, channel){
+    if(err)
       res.send(err);
-    res.json(channel);
+    res.send(channel);
+  });
+};
+
+exports.updateURL = (req, res) => {
+  var original;
+  //var original = document.getElementById("name");
+  var update;
+  //var update = document.getElementById("user-typed-name")
+  Channel.updateOne({name: original},{name: update} ,function(err, channel){
+    if(err)
+      res.send(err);
+    res.send(channel);
   });
 };
