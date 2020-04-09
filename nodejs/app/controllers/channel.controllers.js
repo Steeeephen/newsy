@@ -30,6 +30,7 @@ exports.search = (req, res) => {
   });
 };
 
+//update the channelName; original will read whatever the currently displayed name is, update, will be whatever the user typed
 exports.updateName = (req, res) => {
   var original;
   //var original = document.getElementById("name");
@@ -42,14 +43,29 @@ exports.updateName = (req, res) => {
   });
 };
 
+//update the channel URL (RSS XML FILE); original will read whatever the currently displayed URL is, update, will be whatever the user typed
 exports.updateURL = (req, res) => {
   var original;
   //var original = document.getElementById("name");
   var update;
   //var update = document.getElementById("user-typed-name")
-  Channel.updateOne({name: original},{name: update} ,function(err, channel){
+  Channel.updateOne({URL: original},{URL: update} ,function(err, channel){
     if(err)
       res.send(err);
     res.send(channel);
+  });
+};
+
+//enable/disable channel, var channelName will match whatever the channel name that is displayed in the HTML
+exports.toggleEnableChannel = (req, res) => {
+  var channelName;
+  //var channelName = document.getElementById("Title")
+  Channel.find({name: channelName}, function(err, channel){
+    {$set: {enabled: !enabled}};
+    Channel.save(function(err, channel){
+      if(err)
+        res.send(err);
+      res.send(channel);
+    });
   });
 };
