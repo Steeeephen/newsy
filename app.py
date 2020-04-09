@@ -22,6 +22,27 @@ def new_user(form):
 	}
 	login.insert_one(new_user_dict)
 
+def check_login(form):
+	login = client['newsy']['login']
+	user = login.find_one({'email': {'$eq': form['email']}})
+	password = user['password']
+	return password == form['password']
+
+def check_reset(form):
+	login = client['newsy']['login']
+	user = login.find_one({'email': {'$eq': form['email']}})
+	question = user['question']
+	answer = user['answer']
+	print(question, answer, form['question'], form['answer'])
+	return question == form['question'] and answer == form['answer']
+
+def reset_password(form):
+	login = client['newsy']['login']
+	query = {"email":form['email']}
+	value = { "$set": {"password":form['password']}}
+	login.update_one(query, value)
+
+# Initial registration page
 @app.route('/', methods = ['GET','POST'])
 @app.route('/register', methods = ['GET','POST'])
 def home():
@@ -31,29 +52,37 @@ def home():
 	else:
 		return render_template('index.html', title = "Newsy")
 
+# Login page
 @app.route('/login',methods = ['GET','POST'])
 def login():
 	if(request.method == "POST"):
-		print(request.form)
-		return 'main page goes here' #to add
+		if(check_login(request.form)):
+			return 'main page goes here' #to add
+		else:
+			return redirect('login')
 	else:
 		return render_template('login.html', title = "Newsy")
 
+# Forgot password page
 @app.route('/forgotpass', methods=['GET','POST'])
 def forgot_pw():
 	if(request.method == "POST"):
-		print(request.form)
-		return redirect('resetpass')
+		if(check_reset(request.form)):
+			return redirect('resetpass')
+		else:
+			return redirect('forgotpass')
 	else:
 		return render_template('forgotpass.html', title = "Newsy")
 
+# Reset password page
 @app.route('/resetpass', methods=['GET','POST'])
 def resetpw():
 	if(request.method == "POST"):
-		print(request.form)
+		reset_password(request.form)
 		return 'password change success' #to add
 	else:
 		return render_template('resetpass.html', title = "Newsy")
+
 
 if __name__ == "__main__":
 	app.run(debug=True)
