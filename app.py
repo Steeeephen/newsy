@@ -1,18 +1,45 @@
 from __future__ import print_function
 from flask import Flask, request, render_template, redirect
 from pymongo import MongoClient
+from Crypto.Cipher import AES
+from Crypto import Random
+import os
+import base64
+import hashlib
+
 
 app = Flask(__name__, static_url_path='/static')
 
 client = MongoClient("mongodb+srv://stephen:l98waDrJSyCUspzw@newsy-98fzw.mongodb.net/test?retryWrites=true&w=majority")
 
+BLOCK_SIZE = 16
+pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+ 
+key = "G8UWRgVYsAzJJZpArEEMbkg7srftxtCGxVf2Vs9RecxJE52bJUhpx8GpNHAjbYj3pnt7tEeKvGRn3Q7RQutceZL9sHcgBssqjzxAz82u6HwsBdNfhbVFdpHURySqvC2eAJE9emf6pvdFZ3F7KLwXaJAFwYjZMRFBhGN3x7EacnXxaKvZas8MsUQGMK9pS6ERVt5Xcx4BeqwNRaMBTXygYrpwrkN93VdDDDJqH86rWvjj8AQsVMjhjvDWMVnUGKt6"
+ 
+def encrypt(raw, key):
+    private_key = hashlib.sha256(key.encode("utf-8")).digest()
+    raw = pad(raw)
+    iv = Random.new().read(AES.block_size)
+    cipher = AES.new(private_key, AES.MODE_CBC, iv)
+    return base64.b64encode(iv + cipher.encrypt(raw))
+
+
+def decrypt(enc, raw):
+	private_key = hashlib.sha256(key.encode("utf-8")).digest()
+	enc = base64.b64decode(enc)
+	enc = base64.b64decode(enc)
+	iv = enc[:16]
+	cipher = AES.new(private_key, AES.MODE_CBC, iv)
+	return unpad(cipher.decrypt(enc[16:])).decode("utf-8")
 
 def new_user(form):
 	login = client['newsy']['login']
 	new_user_dict = {
 		"firstname":form['firstname'],
 		"lastname":form['lastname'],
-		"password":form['password'], #to be encrypted
+		"password":base64.b64encode(encrypt(form['password'],key)).decode("utf8"), #to be encrypted
 		"gender":form['gender'],
 		"email":form['email'],
 		"phone":form['phone'],
@@ -25,7 +52,7 @@ def new_user(form):
 def check_login(form):
 	login = client['newsy']['login']
 	user = login.find_one({'email': {'$eq': form['email']}})
-	password = user['password']
+	password = decrypt(user['password'],key)
 	return password == form['password']
 
 def check_reset(form):
@@ -39,7 +66,7 @@ def check_reset(form):
 def reset_password(form):
 	login = client['newsy']['login']
 	query = {"email":form['email']}
-	value = { "$set": {"password":form['password']}}
+	value = { "$set": {"password":encrypt(form['password'],key)}}
 	login.update_one(query, value)
 
 # Initial registration page
