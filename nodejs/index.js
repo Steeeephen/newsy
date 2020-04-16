@@ -29,5 +29,5 @@ mongoose.connect(dbConfig.url, {
 var routes = require('app/routes/channel.routes.js')(app);
 
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}!`)
+    console.log(`Server listening on port ${port}!`)
 });

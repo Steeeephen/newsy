@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css">
+    <link rel="shortcut icon" href="/img/logo.jpg" />
+    <title>Newsy</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark nav-back">
+            <img src="./img/logo.jpg" width="45" height="45" class="rounded-circle" alt="Cinque Terre">
+            <a class="navbar-brand" href="#">ewsy</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <!-- <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li> -->
+                    <!-- <li class="nav-item">
+                  <a class="nav-link" href="#">Link</a>
+                </li> -->
+                </ul>
+                <button class="btn btn-outline-success my-2 my-sm-0 logout" type="submit" id="Logout">Logout</button>
+            </div>
+
+        </nav>
+    </header>
+
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">Newsy App</h1>
+            <p class="lead">For Everyday News</p>
+        </div>
+    </div>
+
+    <div class="container container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="row list-header">
+                    <h3 class="col-9">Channels</h3>
+                    <button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item " type="button">
+                        <div class="row">
+                            <div class="col-9">CNN</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item" type="button">
+                        <div class="row">
+                            <div class="col-9">RTE</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item" type="button">
+                        <div class="row">
+                            <div class="col-9">NDTV</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item" type="button">
+                        <div class="row">
+                            <div class="col-9">IBN</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item" type="button">
+                        <div class="row">
+                            <div class="col-9">BBC</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item" type="button">
+                        <div class="row">
+                            <div class="col-9">RTE</div>
+                            <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
+                            Edit
+                        </button>
+                        </div>
+                    </li>
+                </ul>
+
+                <h1><br></h1>
+                <div class="row list-header">
+                    <h3 class="col-9">Topics</h3>
+                    <button type="button" class="btn col-3" data-toggle="modal" data-target="#addTopicModal">Add</button>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-9" type="button">Ireland</div>
+                            <button type="button" class="btn btn-outline-dark btn-sm col-3">
+                            X
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item ">
+                        <div class="row">
+                            <div class="col-9" type="button">Ireland AND Coronavirus</div>
+                            <button type="button" class="btn btn-outline-dark btn-sm col-3">
+                            X
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item ">
+                        <div class="row">
+                            <div class="col-9" type="button"> Football</div>
+                            <button type="button" class="btn btn-outline-dark btn-sm col-3">
+                            X
+                        </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item ">
+                        <div class="row">
+                            <div class="col-9" type="button">Cricket</div>
+                            <button type="button" class="btn btn-outline-dark btn-sm col-3">
+                            X
+                        </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-9">
+
+                <div><br></div>
+                <ul class="list-unstyled row">
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/100" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!--Add Channel Modal -->
+    <div class="modal fade" id="addChannelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Channel Modal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Channel Name</label>
+                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp">
+                            <small id="emailHelp" class="form-text text-muted">This is the name of the Channel</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="rssFeedURL">RSS FEED URL</label>
+                            <input type="text" class="form-control" id="rssFeedURL">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Channel</button>
+                    </form>
+                </div>
+                <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+            </div>
+        </div>
+    </div>
+
+    <!--Edit Channel Modal -->
+    <div class="modal fade" id="editChannelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Channel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Channel Name</label>
+                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp">
+                            <small id="emailHelp" class="form-text text-muted">This is the name of the Channel</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="rssFeedURL">RSS FEED URL</label>
+                            <input type="text" class="form-control" id="rssFeedURL">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                            <label class="form-check-label" for="defaultCheck1">
+                  Enable Channel
+                </label>
+                        </div>
+                        <h1><br></h1>
+                        <button type="submit" class="btn btn-primary">Edit Channel</button>
+                        <button type="button" class="btn btn-primary">Delete Channel</button>
+                    </form>
+                </div>
+                <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> -->
+            </div>
+        </div>
+    </div>
+
+
+    <!--Add Topic Modal -->
+    <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Topic</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Search Feed</label>
+                            <input type="text" class="form-control" id="channelName">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Topic</button>
+                    </form>
+                </div>
+                <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+
+</html>

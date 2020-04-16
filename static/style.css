@@ -1,0 +1,75 @@
+.card {
+    margin-bottom: 20px;
+}
+
+.list-header {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+button.btn.btn-outline-dark.btn-sm.col-3 {
+    max-height: 30px;
+}
+
+.jumbotron {
+    background-image: url(../img/homeimage.jpg);
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.nav-back {
+    background: -webkit-linear-gradient(left, #000, #3931af);
+}
+
+.logout {
+    border: 1px solid #fff;
+    color: white;
+}
+
+.logout:active {
+    border: 1px solid #fff;
+    background: #fff!important;
+    color: #000;
+}
+
+.logout:hover {
+    border: 1px solid #fff;
+    background: #fff;
+    color: #3931a0;
+}
+
+.btn.btn-primary.col-3 {
+    border: 1px solid #3931a0;
+    background-color: white;
+    color: #3931a0;
+}
+
+.btn.btn-primary.col-3:hover {
+    border: 1px solid #3931a0;
+    background-color: #3931a0;
+    color: #fff;
+}
+
+.btn.btn-outline-dark.btn-sm.col-3 {
+    border: 1px solid #3931a0;
+    color: #3931a0;
+}
+
+.btn.btn-outline-dark.btn-sm.col-3:hover {
+    border: 1px solid #3931a0;
+    background-color: #3931a0;
+    color: #fff;
+}
+
+.btn.btn-primary {
+    border: 1px solid #3931a0;
+    color: #3931a0;
+    background-color: white;
+}
+
+.btn.btn-primary:hover {
+    border: 1px solid #3931a0;
+    background-color: #3931a0;
+    color: #fff;
+}

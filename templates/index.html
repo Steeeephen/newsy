@@ -12,141 +12,140 @@
 
     <link rel="stylesheet" type="text/css" href="/static/main.css">
     <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css">
+    <link rel="shortcut icon" href="/img/logo.jpg" />
 
-</head>
+    <body>
+        <div class="container register">
+            <div class="row">
+                <div class="col-md-3 register-left">
+                    <img src="https://i.ibb.co/k34r7DG/Newspaper-PNG-File.png" alt="" />
+                    <h3>Welcome</h3>
+                    <p>Register or Login to Newsy</p>
 
-<body>
-    <div class="container register">
-        <div class="row">
-            <div class="col-md-3 register-left">
-                <img src="https://i.ibb.co/k34r7DG/Newspaper-PNG-File.png" alt="" />
-                <h3>Welcome</h3>
-                <p>Register or Login to Newsy</p>
+                    <a href="/login" class="btn btn-xs btn-primary">Login</a>
+                </div>
+                <div class="col-md-9 register-right">
+                    <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Reader</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Editor</a>
+                        </li>
+                    </ul>
 
-                <a href="/login" class="btn btn-xs btn-primary">Login</a>
-            </div>
-            <div class="col-md-9 register-right">
-                <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Reader</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Editor</a>
-                    </li>
-                </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                            <h3 class="register-heading">Register as a Reader</h3>
+                            <form method="POST" role="form" class="form-horizontal" oninput='password.setCustomValidity(password.value != confirm_password.value ? "Passwords do not match." : "")'>
 
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <h3 class="register-heading">Register as a Reader</h3>
-                        <form method="POST" role="form" class="form-horizontal" oninput='password.setCustomValidity(password.value != confirm_password.value ? "Passwords do not match." : "")'>
+                                <div class="row register-form">
 
-                        <div class="row register-form" >
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="First Name *" id="firstname" name="firstname"/>
-                                    <p id="demo"></p>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Last Name *" value="" id="lastname" name="lastname" />
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password *" value="" id="password" name="password"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Confirm Password *" value="" id="confirmpassword" name="confirm_password"/>
-                                </div>
-                                <div class="form-group">
-                                    <div class="maxl">
-                                        <label class="radio inline"> 
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="First Name *" id="firstname" name="firstname" />
+                                            <p id="demo"></p>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Last Name *" value="" id="lastname" name="lastname" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control" placeholder="Password *" value="" id="password" name="password" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control" placeholder="Confirm Password *" value="" id="confirmpassword" name="confirm_password" />
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="maxl">
+                                                <label class="radio inline"> 
                                                     <input type="radio" name="gender" value="male" checked>
                                                     <span> Male </span> 
                                                 </label>
-                                        <label class="radio inline"> 
+                                                <label class="radio inline"> 
                                                     <input type="radio" name="gender" value="female">
                                                     <span>Female </span> 
                                                 </label>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="email" class="form-control" placeholder="Your Email *" value="" name="email"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" minlength="10" maxlength="10" class="form-control" placeholder="Your Phone *" value="" name="phone"/>
-                                </div>
-                                <div class="form-group">
-                                    <select class="form-control" name="question">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="email" class="form-control" placeholder="Your Email *" value="" name="email" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" minlength="10" maxlength="10" class="form-control" placeholder="Your Phone *" value="" name="phone" />
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control" name="question">
                                                 <option class="hidden"  selected disabled value="0">Please select your Security Question</option>
                                                 <option value="1">What is your Birthdate?</option>
                                                 <option value="2">What is Your old Phone Number</option>
                                                 <option value="3">What is your Pet Name?</option>
                                             </select>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Enter Your Answer *" value="" name="answer"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="hidden" class="form-control" name="editor" value="False" />
-                                </div>
-                                <input type="submit" onclick="myFunction()" class="btnRegister" value="Register" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Enter Your Answer *" value="" name="answer" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="hidden" class="form-control" name="editor" value="False" />
+                                        </div>
+                                        <input type="submit" onclick="myFunction()" class="btnRegister" value="Register" />
 
-                            </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                    </div>
-                    <div class="tab-pane fade show" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <h3 class="register-heading">Register as a Editor</h3>
-                        <form method="POST" role="form" class="form-horizontal" oninput='password.setCustomValidity(password.value != confirm_password.value ? "Passwords do not match." : "")'>
-                        <div class="row register-form">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="First Name *" value="" name="firstname"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Last Name *" value="" name="lastname"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="email" class="form-control" placeholder="Email *" value="" name="email"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" maxlength="10" minlength="10" class="form-control" placeholder="Phone *" value="" name="phone"/>
-                                </div>
+                        <div class="tab-pane fade show" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                            <h3 class="register-heading">Register as a Editor</h3>
+                            <form method="POST" role="form" class="form-horizontal" oninput='password.setCustomValidity(password.value != confirm_password.value ? "Passwords do not match." : "")'>
+                                <div class="row register-form">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="First Name *" value="" name="firstname" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Last Name *" value="" name="lastname" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="email" class="form-control" placeholder="Email *" value="" name="email" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" maxlength="10" minlength="10" class="form-control" placeholder="Phone *" value="" name="phone" />
+                                        </div>
 
 
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password *" value="" name="password"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Confirm Password *" value="" name="confirm_password"/>
-                                </div>
-                                <div class="form-group">
-                                    <select class="form-control" name="question">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="password" class="form-control" placeholder="Password *" value="" name="password" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control" placeholder="Confirm Password *" value="" name="confirm_password" />
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control" name="question">
                                                 <option class="hidden"  selected disabled>Please select your Security Question</option>
                                                 <option>What is your Birthdate?</option>
                                                 <option>What is Your old Phone Number</option>
                                                 <option>What is your Pet Name?</option>
                                             </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="`Answer *" value="" name="answer" />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="hidden" class="form-control" name="editor" value="True" />
+                                        </div>
+                                        <input type="submit" class="btnRegister" value="Register" />
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="`Answer *" value="" name="answer"/>
-                                </div>
-                                <div class="form-group">
-                                    <input type="hidden" class="form-control" name="editor" value="True" />
-                                </div>
-                                <input type="submit" class="btnRegister" value="Register" />
-                            </div>
                         </div>
                     </div>
+
                 </div>
-
             </div>
-        </div>
 
-    </div>
-</body>
+        </div>
+    </body>
 
 </html>
