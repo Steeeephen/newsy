@@ -92,3 +92,13 @@ exports.toggleEnableChannel = (req, res) => {
     });
   });
 };
+
+//delete channel from database
+exports.deleteChannel = (req, res) => {
+  var channelName;
+  //var channelName = document.getElementById("Title")
+  Channel.deleteOne({ name: channelName}, function(err, channel){
+    if(err)
+      res.send(err);
+  });
+};
