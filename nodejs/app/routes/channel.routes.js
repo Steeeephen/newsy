@@ -18,5 +18,7 @@ module.exports = (app) => {
 
     //toggle whether the channel is enabled or disabled according to a button click
     app.put('channel/enable', channels.toggleEnableChannel);
-
+    
+    //Delete a selected channel from the database
+    app.put('channel/name', channels.deleteChannel);
 }
