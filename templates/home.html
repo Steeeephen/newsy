@@ -11,14 +11,14 @@
 
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css">
-    <link rel="shortcut icon" href="/img/logo.jpg" />
+    <link rel="shortcut icon" href="/static/logo.jpg" />
     <title>Newsy</title>
 </head>
 
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark nav-back">
-            <img src="./img/logo.jpg" width="45" height="45" class="rounded-circle" alt="Cinque Terre">
+            <img src="/static/logo.jpg" width="45" height="45" class="rounded-circle" alt="Cinque Terre">
             <a class="navbar-brand" href="#">ewsy</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
@@ -110,9 +110,9 @@
                     <button type="button" class="btn col-3" data-toggle="modal" data-target="#addTopicModal">Add</button>
                 </div>
                 <ul class="list-group">
-                    <li class="list-group-item">
+                    <!-- <li class="list-group-item">
                         <div class="row">
-                            <div class="col-9" type="button">Ireland</div>
+                            <div class="col-9" type="button">{{topic}}</div>
                             <button type="button" class="btn btn-outline-dark btn-sm col-3">
                             X
                         </button>
@@ -141,7 +141,8 @@
                             X
                         </button>
                         </div>
-                    </li>
+                    </li> -->
+                    {{topic}}
                 </ul>
             </div>
             <div class="col-9">
@@ -297,12 +298,12 @@
           </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form method="POST" role="form">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Search Feed</label>
-                            <input type="text" class="form-control" id="channelName">
+                            <input type="text" class="form-control" id="channelName" name="topic" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Topic</button>
+                        <input type="submit" class="btn btn-primary" value="Add topic">
                     </form>
                 </div>
                 <!-- <div class="modal-footer">

@@ -12,7 +12,7 @@ button.btn.btn-outline-dark.btn-sm.col-3 {
 }
 
 .jumbotron {
-    background-image: url(../img/homeimage.jpg);
+    background-image: url(../static/homeimage.jpg);
     background-size: cover;
     background-position: center;
     color: white;

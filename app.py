@@ -1,5 +1,5 @@
 from __future__ import print_function
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, Markup
 from pymongo import MongoClient
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -19,11 +19,11 @@ unpad = lambda s: s[:-ord(s[len(s) - 1:])]
 key = "G8UWRgVYsAzJJZpArEEMbkg7srftxtCGxVf2Vs9RecxJE52bJUhpx8GpNHAjbYj3pnt7tEeKvGRn3Q7RQutceZL9sHcgBssqjzxAz82u6HwsBdNfhbVFdpHURySqvC2eAJE9emf6pvdFZ3F7KLwXaJAFwYjZMRFBhGN3x7EacnXxaKvZas8MsUQGMK9pS6ERVt5Xcx4BeqwNRaMBTXygYrpwrkN93VdDDDJqH86rWvjj8AQsVMjhjvDWMVnUGKt6"
  
 def encrypt(raw, key):
-    private_key = hashlib.sha256(key.encode("utf-8")).digest()
-    raw = pad(raw)
-    iv = Random.new().read(AES.block_size)
-    cipher = AES.new(private_key, AES.MODE_CBC, iv)
-    return base64.b64encode(iv + cipher.encrypt(raw))
+	private_key = hashlib.sha256(key.encode("utf-8")).digest()
+	raw = pad(raw)
+	iv = Random.new().read(AES.block_size)
+	cipher = AES.new(private_key, AES.MODE_CBC, iv)
+	return base64.b64encode(iv + cipher.encrypt(raw))
 
 
 def decrypt(enc, raw):
@@ -84,7 +84,7 @@ def home():
 def login():
 	if(request.method == "POST"):
 		if(check_login(request.form)):
-			return 'main page goes here' #to add
+			return redirect('home')
 		else:
 			return redirect('login')
 	else:
@@ -109,6 +109,29 @@ def resetpw():
 		return 'password change success' #to add
 	else:
 		return render_template('resetpass.html', title = "Newsy")
+
+@app.route('/home', methods=['GET','POST'])
+def homepage():
+	if(request.method == "POST"):
+		print(request.form['topic'])
+		client.newsy.topics.insert_one({'topic':request.form['topic']})
+		return redirect('home')
+	else:
+		topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
+		topic_format = """
+		<li class="list-group-item">
+						<div class="row">
+							<div class="col-9" type="button">{0}</div>
+							<button type="button" class="btn btn-outline-dark btn-sm col-3">
+							X
+						</button>
+						</div>
+					</li>
+		"""
+		topic_html = ""
+		for i in topic_list:
+			topic_html += topic_format.format(i)
+		return render_template('home.html', topic = Markup(topic_html))
 
 
 if __name__ == "__main__":
