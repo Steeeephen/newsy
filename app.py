@@ -112,27 +112,114 @@ def resetpw():
 
 @app.route('/home', methods=['GET','POST'])
 def homepage():
-	if(request.method == "POST"):
-		print(request.form['topic'])
-		client.newsy.topics.insert_one({'topic':request.form['topic']})
-		return redirect('home')
-	else:
-		topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
-		topic_format = """
-		<li class="list-group-item">
-						<div class="row">
-							<div class="col-9" type="button">{0}</div>
-							<button type="button" class="btn btn-outline-dark btn-sm col-3">
-							X
-						</button>
-						</div>
-					</li>
-		"""
-		topic_html = ""
-		for i in topic_list:
-			topic_html += topic_format.format(i)
-		return render_template('home.html', topic = Markup(topic_html))
+	# if(request.method == "POST"):
+	# 	print(request.form['topic'])
+	# 	client.newsy.topics.insert_one({'topic':request.form['topic']})
+	# 	return redirect('home')
+	# else:
+	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
+	topic_format = """
+	<li class="list-group-item">
+					<div class="row">
+						<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+						<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+						X
+					</button>
+					</div>
+				</li>
+	"""
+	topic_html = ""
+	for i in topic_list:
+		topic_html += topic_format.format(i)
 
+	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
+	channel_format = """
+	<li class="list-group-item " type="button">
+					<div class="row">
+						<div class="col-9">{0}</div>
+						<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
+						Edit
+					</button>
+					</div>
+				</li>
+	"""
+	channel_html = ""
+	for i in channel_list:
+		channel_html += channel_format.format(i)
+	return render_template('home.html', topic = Markup(topic_html), channels = Markup(channel_html))
+
+@app.route('/topic/<topic_keyword>', methods=['GET','POST'])
+def topicpage(topic_keyword):
+	#if(request.method == "POST"):
+	#	client.newsy.topics.insert_one({'topic':request.form['topic']})
+	#	return redirect('home')
+	#else:
+	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
+	
+	topic_format = """
+	<li class="list-group-item">
+					<div class="row">
+						<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
+						<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+						X
+					</button>
+					</div>
+				</li>
+	"""
+	topic_html = ""
+	for i in topic_list:
+		topic_html += topic_format.format(i)
+
+	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
+	channel_format = """
+	<li class="list-group-item " type="button">
+					<div class="row">
+						<div class="col-9">{0}</div>
+						<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3" >
+						Enable
+					</button>
+					</div>
+				</li>
+	"""
+	channel_html = ""
+	for i in channel_list:
+		channel_html += channel_format.format(i)
+	return("ok")
+	#return render_template('home.html', topic = Markup(topic_html),channels = Markup(channel_html))
+
+@app.route('/addtopic', methods = ['POST'])
+def addtopic():
+	client.newsy.topics.insert_one({'topic':request.form['topic']})
+	return redirect('/home')
+
+
+@app.route('/addchannel', methods = ['POST'])
+def addchannel():
+	client.newsy.Channel.insert_one({
+		'name':request.form['name'],
+		'url':request.form['url'],
+		'enabled':True})
+	return redirect('/home')
+
+
+
+@app.route('/removetopic/<remove_topic>')
+def removetopic(remove_topic):
+	client.newsy.topics.delete_one({'topic':remove_topic})
+	return redirect('/home')
+
+@app.route('/enablechannel/<enable_channel>')
+def enablechannel(enable_channel):
+	query = {"name":enable_channel}
+	value = { "$set": {"enabled":False}}
+	client.newsy.Channel.update_one(query, value)
+	return redirect('/home')
+
+# @app.route('/enablechannel')
+# def enablechanneldef():
+# 	#for i in(client.newsy.Channel.find({'name': {'$eq': enable_channel}})):
+# 	#	print(i)
+# 	return redirect('/home')
 
 if __name__ == "__main__":
 	app.run(debug=True)

@@ -19,7 +19,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark nav-back">
             <img src="/static/logo.jpg" width="45" height="45" class="rounded-circle" alt="Cinque Terre">
-            <a class="navbar-brand" href="#">ewsy</a>
+            <a class="navbar-brand" href="/home">ewsy</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
@@ -54,7 +54,7 @@
                     <button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
                 </div>
                 <ul class="list-group">
-                    <li class="list-group-item " type="button">
+                    <!-- <li class="list-group-item " type="button">
                         <div class="row">
                             <div class="col-9">CNN</div>
                             <button type="button" class="btn btn-primary col-3" data-toggle="modal" data-target="#editChannelModal">
@@ -101,7 +101,8 @@
                             Edit
                         </button>
                         </div>
-                    </li>
+                    </li> -->
+                    {{channels}}
                 </ul>
 
                 <h1><br></h1>
@@ -225,17 +226,17 @@
         </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form method="POST" role="form" action ="{{ url_for('addchannel')}}" >
                         <div class="form-group">
                             <label for="exampleInputEmail1">Channel Name</label>
-                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp">
+                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp" name="name">
                             <small id="emailHelp" class="form-text text-muted">This is the name of the Channel</small>
                         </div>
                         <div class="form-group">
                             <label for="rssFeedURL">RSS FEED URL</label>
-                            <input type="text" class="form-control" id="rssFeedURL">
+                            <input type="text" class="form-control" id="rssFeedURL" name="url">
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Channel</button>
+                        <input type="submit" class="btn btn-primary" value="Add channel">
                     </form>
                 </div>
                 <!-- <div class="modal-footer">
@@ -247,7 +248,7 @@
     </div>
 
     <!--Edit Channel Modal -->
-    <div class="modal fade" id="editChannelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <!--  <div class="modal fade" id="editChannelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -257,19 +258,20 @@
           </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form method="POST" role="form" >
+
                         <div class="form-group">
                             <label for="exampleInputEmail1">Channel Name</label>
-                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp">
+                            <input type="text" class="form-control" id="channelName" aria-describedby="emailHelp" name = "name">
                             <small id="emailHelp" class="form-text text-muted">This is the name of the Channel</small>
                         </div>
                         <div class="form-group">
                             <label for="rssFeedURL">RSS FEED URL</label>
-                            <input type="text" class="form-control" id="rssFeedURL">
+                            <input type="text" class="form-control" id="rssFeedURL" name="url">
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                            <label class="form-check-label" for="defaultCheck1">
+                            <input class="form-check-input" type="checkbox" value="True" id="defaultCheck1" checked name="enabled">
+                            <label class="form-check-label" for="defaultCheck1" >
                   Enable Channel
                 </label>
                         </div>
@@ -285,7 +287,7 @@
             </div>
         </div>
     </div>
-
+ -->
 
     <!--Add Topic Modal -->
     <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -298,7 +300,7 @@
           </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" role="form">
+                    <form method="POST" role="form" action ="{{ url_for('addtopic')}}" >
                         <div class="form-group">
                             <label for="exampleInputEmail1">Search Feed</label>
                             <input type="text" class="form-control" id="channelName" name="topic" />
