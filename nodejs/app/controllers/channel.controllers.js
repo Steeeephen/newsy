@@ -1,6 +1,6 @@
 var Channel = require('/app/models/channels.model.js');
 
-//create channel
+//create channel according to details in request body (req.body)
 exports.createNewChannel = (req, res) => {
   var new_Channel = new Channel(req.body);
   new_Channel.save(function(err, channel){
@@ -10,23 +10,17 @@ exports.createNewChannel = (req, res) => {
   });
 };
 
-//get single channel, display its name and url, will find where the name mathces the name on the webpage
+//get single channel, display its name and url, accroding to req.params.name
 exports.getOne = (req, res) => {
-  var channelName;
-  //var channelName = document.getElementById("Title")
-  Channel.find({ name: channelName}, {name:1, url:1, _id:0} ,function(err, channel){
+  Channel.find({name: req.params.name}, {name:1, url:1, _id:0} ,function(err, channel){
     if(err)
       res.send(err);
     res.send(channel);
   });
 };
 
-
-//display the rss feed; this will get the url of the rss, which can then be parsed
 exports.display = (req, res) => {
-  var channelName;
-  //var channelName = document.getElementById("Title")
-  Channel.find({ name: channelName}, {url:1, _id:0} ,function(err, channel){
+  Channel.find( {url: req.params.url},function(err, channel){
     if(err)
       res.send(err);
     res.send(channel);
@@ -53,31 +47,16 @@ exports.search = (req, res) => {
   });
 };
 
-//update the channelName; original will read whatever the currently displayed name is, update, will be whatever the user typed
-exports.updateName = (req, res) => {
-  var original;
-  //var original = document.getElementById("name");
-  var update;
-  //var update = document.getElementById("user-typed-name")
-  Channel.updateOne({name: original},{name: update} ,function(err, channel){
-    if(err)
-      res.send(err);
-    res.send(channel);
-  });
-};
-
-//update the channel URL (RSS XML FILE); original will read whatever the currently displayed URL is, update, will be whatever the user typed
-exports.updateURL = (req, res) => {
-  var original;
-  //var original = document.getElementById("name");
-  var update;
-  //var update = document.getElementById("user-typed-name")
-  Channel.updateOne({URL: original},{URL: update} ,function(err, channel){
-    if(err)
-      res.send(err);
-    res.send(channel);
-  });
-};
+// //updates the channel according to what is sent in the request params
+//NOT CURRENTLY WORKING, TO BE TESTED!
+// exports.update = (req, res) => {
+//   Channel.findOneAndUpdate({name: req.params.name},  {url: req.body.url}, {new: true},
+//   function(err, channel){
+//     if(err)
+//       res.send(err);
+//     res.send(channel);
+//   });
+// };
 
 //enable/disable channel, var channelName will match whatever the channel name that is displayed in the HTML
 exports.toggleEnableChannel = (req, res) => {
