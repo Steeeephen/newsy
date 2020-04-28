@@ -136,14 +136,14 @@ def homepage():
 							<img src="{0}" class="card-img-top" alt="...">
 							<div class="card-body">
 								<h5 class="card-title">{1}</h5>
-								<a href="{2}" class="btn btn-primary">Click</a>
+								<a href="/clicked/{2}" target = "_blank" class="btn btn-primary">Click</a>
 							</div>
 						</div>
 					</li>
 	"""
 	article_html = ""
 	for i in range(len(thumbnails)):
-		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i])
+		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
 
 	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
 	topic_format = """
@@ -287,6 +287,6 @@ def clicklink(link):
 	newval = {'$inc': {'count':1}}
 	client.newsy.articles.update(query,newval, True)
 	return redirect(link)
-	
+
 if __name__ == "__main__":
 	app.run(debug=True)
