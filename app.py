@@ -6,7 +6,7 @@ from Crypto import Random
 import os
 import base64
 import hashlib
-
+import feedparser
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -112,11 +112,40 @@ def resetpw():
 
 @app.route('/home', methods=['GET','POST'])
 def homepage():
-	# if(request.method == "POST"):
-	# 	print(request.form['topic'])
-	# 	client.newsy.topics.insert_one({'topic':request.form['topic']})
-	# 	return redirect('home')
-	# else:
+	url_list = [i['url'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
+	print(url_list)
+
+	thumbnails = []
+	titles = []
+	actuallinks = []
+	for url in url_list:
+		feed = feedparser.parse(url)
+		for i in range(10):
+			thumbnails.append(feed['items'][i]['media_thumbnail'])
+			titles.append(feed['items'][i]['title'])
+			actuallinks.append(feed['items'][i]['link'])
+	
+	for i in range(len(actuallinks)):
+		query = {'url':actuallinks[i]}
+		newval = {'$set': {'url': actuallinks[i], 'image': thumbnails[i], 'title':titles[i]}}
+		client.newsy.articles.update(query, newval, True)
+
+	article_format = """
+	<li class="col-4">
+						<div class="card">
+							<img src="{0}" class="card-img-top" alt="...">
+							<div class="card-body">
+								<h5 class="card-title">{1}</h5>
+								<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+								<a href="{2}" class="btn btn-primary">Go somewhere</a>
+							</div>
+						</div>
+					</li>
+	"""
+	article_html = ""
+	for i in range(len(thumbnails)):
+		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i])
+
 	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
 	topic_format = """
 	<li class="list-group-item">
@@ -146,14 +175,17 @@ def homepage():
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
-	return render_template('home.html', topic = Markup(topic_html), channels = Markup(channel_html))
+	return render_template('home.html', topic = Markup(topic_html), channels = Markup(channel_html), articles = Markup(article_html))
 
 @app.route('/topic/<topic_keyword>', methods=['GET','POST'])
 def topicpage(topic_keyword):
-	#if(request.method == "POST"):
-	#	client.newsy.topics.insert_one({'topic':request.form['topic']})
-	#	return redirect('home')
-	#else:
+	if "AND" in topic_keyword:
+		compound = True
+		keywords = topic_keyword.replace(" ", "").split("AND")
+	else:
+		compound = False
+		keywords = topic_keyword.split(" ")
+	
 	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
 	
 	topic_format = """
@@ -184,8 +216,46 @@ def topicpage(topic_keyword):
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
-	return("ok")
-	#return render_template('home.html', topic = Markup(topic_html),channels = Markup(channel_html))
+
+	article_format = """
+	<li class="col-4">
+						<div class="card">
+							<img src="{0}" class="card-img-top" alt="...">
+							<div class="card-body">
+								<h5 class="card-title">{1}</h5>
+								<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+								<a href="{2}" class="btn btn-primary">Go somewhere</a>
+							</div>
+						</div>
+					</li>
+	"""
+	article_html = ""
+
+	titles = []
+	thumbnails = []
+	actuallinks = []
+	if compound:
+		reg = "%s" + "|%s"*(len(keywords)-1) + ".*"
+		reg2 = ".*" + reg*(len(keywords))
+		extended = []
+		for i in range(len(keywords)):
+			extended.extend(keywords)
+		for article in client.newsy.articles.find({'title': {'$regex': reg2 % tuple(extended), '$options': 'i'}}):
+				actuallinks.append(article['url'])
+				thumbnails.append(article['image'])
+				titles.append(article['title'])
+	else:
+		for keyword in keywords:
+			for article in client.newsy.articles.find({'title': {'$regex': ".*%s.*" % keyword, '$options': 'i'}}):
+				actuallinks.append(article['url'])
+				thumbnails.append(article['image'])
+				titles.append(article['title'])
+	
+	for i in range(len(thumbnails)):
+		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i])
+
+
+	return render_template('home.html', topic = Markup(topic_html),channels = Markup(channel_html), articles = Markup(article_html))
 
 @app.route('/addtopic', methods = ['POST'])
 def addtopic():
@@ -200,8 +270,6 @@ def addchannel():
 		'url':request.form['url'],
 		'enabled':True})
 	return redirect('/home')
-
-
 
 @app.route('/removetopic/<remove_topic>')
 def removetopic(remove_topic):
