@@ -33,7 +33,7 @@
                   <a class="nav-link" href="#">Link</a>
                 </li> -->
                 </ul>
-                <button class="btn btn-outline-success my-2 my-sm-0 logout" type="submit" id="Logout">Logout</button>
+                <button onclick = "location.href='/logout'" class="btn btn-outline-success my-2 my-sm-0 logout" type="submit" id="Logout">Logout</button>
             </div>
 
         </nav>
@@ -51,7 +51,7 @@
             <div class="col">
                 <div class="row list-header">
                     <h3 class="col-9">Channels</h3>
-                    <button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
+                    {{add_button_channel}}
                 </div>
                 <ul class="list-group">
                     <!-- <li class="list-group-item " type="button">
@@ -108,7 +108,7 @@
                 <h1><br></h1>
                 <div class="row list-header">
                     <h3 class="col-9">Topics</h3>
-                    <button type="button" class="btn col-3" data-toggle="modal" data-target="#addTopicModal">Add</button>
+                    {{add_button_topic}}
                 </div>
                 <ul class="list-group">
                     <!-- <li class="list-group-item">

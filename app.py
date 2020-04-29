@@ -1,5 +1,6 @@
 from __future__ import print_function
 from flask import Flask, request, render_template, redirect, Markup
+import flask_login
 from pymongo import MongoClient
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -10,12 +11,26 @@ import feedparser
 
 app = Flask(__name__, static_url_path='/static')
 
+login_manager = flask_login.LoginManager()
+login_manager.session_protection = 'strong'
+login_manager.init_app(app)
+
 client = MongoClient("mongodb+srv://stephen:l98waDrJSyCUspzw@newsy-98fzw.mongodb.net/test?retryWrites=true&w=majority")
 
 BLOCK_SIZE = 16
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 unpad = lambda s: s[:-ord(s[len(s) - 1:])]
  
+class User(flask_login.UserMixin):
+	pass
+
+@app.route('/logout')
+def logout():
+	flask_login.logout_user()
+	return 'Logged out'
+
+
+app.secret_key = "G8UWRgVYsAzJJZpArEEMbkg7srftxtCGxVf2Vs9RecxJE52bJUhpx8GpNHAjbYj3pnt7tEeKvGRn3Q7RQutceZL9sHcgBssqjzxAz82u6HwsBdNfhbVFdpHURySqvC2eAJE9emf6pvdFZ3F7KLwXaJAFwYjZMRFBhGN3x7EacnXxaKvZas8MsUQGMK9pS6ERVt5Xcx4BeqwNRaMBTXygYrpwrkN93VdDDDJqH86rWvjj8AQsVMjhjvDWMVnUGKt6"
 key = "G8UWRgVYsAzJJZpArEEMbkg7srftxtCGxVf2Vs9RecxJE52bJUhpx8GpNHAjbYj3pnt7tEeKvGRn3Q7RQutceZL9sHcgBssqjzxAz82u6HwsBdNfhbVFdpHURySqvC2eAJE9emf6pvdFZ3F7KLwXaJAFwYjZMRFBhGN3x7EacnXxaKvZas8MsUQGMK9pS6ERVt5Xcx4BeqwNRaMBTXygYrpwrkN93VdDDDJqH86rWvjj8AQsVMjhjvDWMVnUGKt6"
  
 def encrypt(raw, key):
@@ -75,7 +90,7 @@ def reset_password(form):
 def home():
 	if(request.method == "POST"):
 		new_user(request.form) #need to verify fully
-		return 'main page goes here' #to add
+		return redirect('login')
 	else:
 		return render_template('index.html', title = "Newsy")
 
@@ -84,6 +99,10 @@ def home():
 def login():
 	if(request.method == "POST"):
 		if(check_login(request.form)):
+			user = User()
+			user.id = request.form['email']
+			flask_login.login_user(user)
+			print("logged in")
 			return redirect('home')
 		else:
 			return redirect('login')
@@ -110,8 +129,11 @@ def resetpw():
 	else:
 		return render_template('resetpass.html', title = "Newsy")
 
+
 @app.route('/home', methods=['GET','POST'])
+@flask_login.login_required
 def homepage():
+	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
 	url_list = [i['url'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
 	print(url_list)
 
@@ -121,7 +143,10 @@ def homepage():
 	for url in url_list:
 		feed = feedparser.parse(url)
 		for i in range(10):
-			thumbnails.append(feed['items'][i]['media_thumbnail'])
+			try:
+				thumbnails.append(feed['items'][i]['media_content'][0]['url'])
+			except:
+				thumbnails.append('')
 			titles.append(feed['items'][i]['title'])
 			actuallinks.append(feed['items'][i]['link'])
 	
@@ -146,38 +171,73 @@ def homepage():
 		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
 
 	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
-	topic_format = """
-	<li class="list-group-item">
-					<div class="row">
-						<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
-						<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
-						X
-					</button>
-					</div>
-				</li>
-	"""
+	if(editor_logged):
+		topic_format = """
+		<li class="list-group-item">
+						<div class="row">
+							<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+							<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+							X
+						</button>
+						</div>
+					</li>
+		"""
+	else:
+		topic_format = """
+		<li class="list-group-item">
+						<div class="row">
+							<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+							</div>
+					</li>
+		"""
 	topic_html = ""
 	for i in topic_list:
 		topic_html += topic_format.format(i)
 
 	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
-	channel_format = """
-	<li class="list-group-item " type="button">
-					<div class="row">
-						<div class="col-9">{0}</div>
-						<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
-						Edit
-					</button>
-					</div>
-				</li>
-	"""
+	if(editor_logged):
+		channel_format = """
+		<li class="list-group-item " type="button">
+						<div class="row">
+							<div class="col-9">{0}</div>
+							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
+							Toggle
+						</button>
+						</div>
+					</li>
+		"""
+		add_button_channel = """
+		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
+		"""
+		add_button_topic = """
+		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addTopicModal">Add</button>
+		"""
+	else:
+		channel_format = """
+		<li class="list-group-item " type="button">
+						<div class="row">
+							<div class="col-9">{0}</div>
+						</div>
+					</li>
+		"""
+		add_button_channel = ""
+		add_button_topic = ""
+
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
-	return render_template('home.html', topic = Markup(topic_html), channels = Markup(channel_html), articles = Markup(article_html))
+	return render_template('home.html', 
+		topic = Markup(topic_html), 
+		channels = Markup(channel_html), 
+		articles = Markup(article_html),
+		add_button_channel = Markup(add_button_channel),
+		add_button_topic = Markup(add_button_topic))
+
 
 @app.route('/topic/<topic_keyword>', methods=['GET','POST'])
+@flask_login.login_required
 def topicpage(topic_keyword):
+	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
 	if "AND" in topic_keyword:
 		compound = True
 		keywords = topic_keyword.replace(" ", "").split("AND")
@@ -187,31 +247,58 @@ def topicpage(topic_keyword):
 	
 	topic_list = [i['topic'] for i  in client.newsy.topics.find({})]
 	
-	topic_format = """
-	<li class="list-group-item">
-					<div class="row">
-						<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
-						<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
-						X
-					</button>
-					</div>
-				</li>
-	"""
+	if(editor_logged):
+		topic_format = """
+		<li class="list-group-item">
+						<div class="row">
+							<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+							<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+							X
+						</button>
+						</div>
+					</li>
+		"""
+	else:
+		topic_format = """
+		<li class="list-group-item">
+						<div class="row">
+							<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
+							</div>
+					</li>
+		"""
 	topic_html = ""
 	for i in topic_list:
 		topic_html += topic_format.format(i)
 
 	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
-	channel_format = """
-	<li class="list-group-item " type="button">
-					<div class="row">
-						<div class="col-9">{0}</div>
-						<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3" >
-						Enable
-					</button>
-					</div>
-				</li>
-	"""
+	if(editor_logged):
+		channel_format = """
+		<li class="list-group-item " type="button">
+						<div class="row">
+							<div class="col-9">{0}</div>
+							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
+							Toggle
+						</button>
+						</div>
+					</li>
+		"""
+		add_button_channel = """
+		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
+		"""
+		add_button_topic = """
+		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addTopicModal">Add</button>
+		"""
+	else:
+		channel_format = """
+		<li class="list-group-item " type="button">
+						<div class="row">
+							<div class="col-9">{0}</div>
+						</div>
+					</li>
+		"""
+		add_button_channel = ""
+		add_button_topic = ""
+
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
@@ -252,15 +339,22 @@ def topicpage(topic_keyword):
 	for i in range(len(thumbnails)):
 		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
 
-	return render_template('home.html', topic = Markup(topic_html),channels = Markup(channel_html), articles = Markup(article_html))
+	return render_template('home.html', 
+		topic = Markup(topic_html), 
+		channels = Markup(channel_html), 
+		articles = Markup(article_html),
+		add_button_channel = Markup(add_button_channel),
+		add_button_topic = Markup(add_button_topic))
 
 @app.route('/addtopic', methods = ['POST'])
+@flask_login.login_required
 def addtopic():
 	client.newsy.topics.insert_one({'topic':request.form['topic']})
 	return redirect('/home')
 
 
 @app.route('/addchannel', methods = ['POST'])
+@flask_login.login_required
 def addchannel():
 	client.newsy.Channel.insert_one({
 		'name':request.form['name'],
@@ -269,11 +363,13 @@ def addchannel():
 	return redirect('/home')
 
 @app.route('/removetopic/<remove_topic>')
+@flask_login.login_required
 def removetopic(remove_topic):
 	client.newsy.topics.delete_one({'topic':remove_topic})
 	return redirect('/home')
 
 @app.route('/enablechannel/<enable_channel>')
+@flask_login.login_required
 def enablechannel(enable_channel):
 	query = {"name":enable_channel}
 	value = { "$set": {"enabled":False}}
@@ -288,5 +384,44 @@ def clicklink(link):
 	client.newsy.articles.update(query,newval, True)
 	return redirect(link)
 
+
+@login_manager.user_loader
+def user_loader(email):
+	emails = []
+	for i in (client.newsy.login.find({})):
+		emails.append(i['email'])
+	print(emails)
+	if email not in emails:
+		return
+	user = User()
+	user.id = email
+	return user
+
+@login_manager.request_loader
+def request_loader(request):
+	print(request)
+	email = request.form.get('email')
+	
+	emails = []
+	for i in (client.newsy.login.find({})):
+		emails.append(i['email'])
+	print(emails)
+	if email not in emails:
+		print("ok")
+		return
+
+	#users = [email]
+	#if email not in users:
+	#   return
+
+	user = User()
+	user.id = email
+
+	#user.is_authenticated = request.form['password'] == users[email]['password']
+
+	return user
+
+
 if __name__ == "__main__":
 	app.run(debug=True)
+
