@@ -1,8 +1,8 @@
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
 const port = process.env.PORT || 3000;
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const cors = require('cors')
 //sets up database, pointing to file below
 var dbConfig = require('/config/database.config.js');
