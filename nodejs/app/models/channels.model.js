@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 //dummy schema for testing
 var ChannelSchema = mongoose.Schema({
-  id: String,
+  _id: mongoose.Schema.Types.ObjectId,
   name: String,
   url: String,
   enabled: Boolean
