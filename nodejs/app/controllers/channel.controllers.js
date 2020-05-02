@@ -1,4 +1,4 @@
-var Channel = require('/app/models/channels.model.js');
+var Channel = require('../models/channels.model.js');
 const mongoose = require('mongoose');
 
 
