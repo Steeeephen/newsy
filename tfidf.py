@@ -18,6 +18,8 @@ This takes the enabled RSS feeds directly from the database and builds tf-idf mo
 to check for similar articles in the database. We can periodically rerun this to keep it updated
 Can be easily done with a 'watch' command from a linux terminal
 
+Update: Not used in the final iteration of the site
+
 
 """
 
