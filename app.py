@@ -433,7 +433,8 @@ def enablechannel(enable_channel):
 	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
 		query = {"name":enable_channel}
 		value = { "$set": {"enabled":False}}
-		client.newsy.Channel.update_one(query, value)
+		#client.newsy.Channel.update_one(query, value)
+		requests.put('http://localhost:3000/channel/enabled', enable_channel)
 	return redirect('/home')
 
 # Log when a link is clicked

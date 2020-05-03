@@ -11,8 +11,8 @@ Install libraries:
 
 ```
 $ pip install requirements.txt
-$ npm install --save express
-$ npm install --save mongoose
+$ cd nodejs
+$ npm install
 ```
 
 Run API
@@ -46,7 +46,7 @@ Users can log into their profile and see the articles as well as the articles fo
 
 #### Endpoints
 
-Format is http://\<url>/\<endpoint>, e.g GET: http:localhost:3000/channel/5eadd20cc33ff44bd3cc91ad
+Format is http://\<url>/\<endpoint>, e.g GET: http://localhost:3000/channel/5eadd20cc33ff44bd3cc91ad
 
 * POST: 
 	* /channel : Create new channel with input format: 
