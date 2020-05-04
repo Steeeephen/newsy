@@ -176,7 +176,9 @@ def resetpw():
 @app.route('/home', methods=['GET','POST'])
 @flask_login.login_required # Require a user to log in if they want to use the site
 def homepage():
-	url_list = [i['url'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})] # To be changed to grab from API
+	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
+	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']]
+	url_list = [i['url'] for i in enabled_channels]
 	
 	thumbnails = []
 	titles = []
@@ -184,7 +186,7 @@ def homepage():
 	
 	for url in url_list:
 		feed = feedparser.parse(url)
-		for i in range(15): # Get 15 articles from the list of articles in the database
+		for i in range(5): # Get 5 articles from the list of articles in the database
 			try:
 				thumbnails.append(feed['items'][i]['media_content'][0]['url']) # Some RSS feeds seem to have different layouts for their images
 			except:
@@ -211,7 +213,6 @@ def homepage():
 	"""
 	
 	# We want to ensure that editors can access the API through this site, so the page presented will be slightly different
-	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
 	if(editor_logged):
 		topic_format = """
 		<li class="list-group-item">
@@ -264,7 +265,15 @@ def homepage():
 	for i in topic_list:
 		topic_html += topic_format.format(i)
 
-	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
+	channel_list = [i['name'] for i in requests.get('http://localhost:3000/channel/').json()['feeds']]
+	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']]
+	if(editor_logged):
+		channel_list = [i['name'] for i in requests.get('http://localhost:3000/channel/').json()['feeds']]
+	else:
+		channel_list = [i['name'] for i in enabled_channels]
+
+
+	# channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
@@ -359,7 +368,7 @@ def topicpage(topic_keyword):
 	for i in topic_list:
 		topic_html += topic_format.format(i)
 
-	channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
+	channel_list = [i['name'] for i in requests.get('http://localhost:3000/channel/').json()['feeds']]
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
@@ -412,10 +421,12 @@ def addtopic():
 @flask_login.login_required
 def addchannel():
 	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
-		client.newsy.Channel.insert_one({
+		new_entry = {
 			'name':request.form['name'],
 			'url':request.form['url'],
-			'enabled':True})
+			'enabled':"true"}
+		print(new_entry)
+		requests.post('http://localhost:3000/channel', new_entry)
 	return redirect('/home')
 
 # Route to remove a given topic
@@ -431,10 +442,9 @@ def removetopic(remove_topic):
 @flask_login.login_required
 def enablechannel(enable_channel):
 	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
-		query = {"name":enable_channel}
-		value = { "$set": {"enabled":False}}
-		#client.newsy.Channel.update_one(query, value)
-		requests.put('http://localhost:3000/channel/enabled', enable_channel)
+		toggle = client.newsy.channels.find({'name': {'$eq': enable_channel}})[0]
+		toggle['enabled'] = str(not(toggle['enabled'])).lower()
+		requests.patch('http://localhost:3000/channel/%s' % str(toggle['_id']), toggle)
 	return redirect('/home')
 
 # Log when a link is clicked

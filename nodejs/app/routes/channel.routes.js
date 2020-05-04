@@ -20,7 +20,7 @@ module.exports = (app) => {
     app.patch('/channel/:channelId', channels.update);
 
     //enables or disables the channel (opposite of the current value of enabled) when a button is clicked
-    app.put('channel/enabled', channels.toggleEnableChannel);
+    app.put('/channel/enabled', channels.toggleEnableChannel);
 
     //deletes the channel whose id is passed.
     app.delete('/channel/:channelId', channels.deleteChannel);

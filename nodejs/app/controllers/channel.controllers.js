@@ -6,7 +6,8 @@ exports.createNewChannel = (req, res) => {
   var new_Channel = new Channel({
     _id: new mongoose.Types.ObjectId(),
     url: req.body.url,
-    name: req.body.name
+    name: req.body.name,
+    enabled: req.body.enabled
   });
   //saves the new channel in the db, sends a 201 status
   new_Channel.save()
@@ -78,7 +79,7 @@ exports.display = (req, res) => {
 exports.getAll = (req, res) => {
   //find is an inbuilt mongoose function, but as we pass nothing, it will return everything
   Channel.find({})
-    .select("name url _id")
+    .select("name url _id enabled")
     .exec()
     .then(docs => {
       const response = {
@@ -87,7 +88,8 @@ exports.getAll = (req, res) => {
           return {
             name: doc.name,
             url: doc.url,
-            _id: doc._id,
+            enabled: doc.enabled,
+            _id: doc._id
           };
         })
       };

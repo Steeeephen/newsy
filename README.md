@@ -5,12 +5,22 @@
 Newsy is a news aggregation portal built to incorporate a RESTful API based around RSS feeds. Newsy is capable of selecting & serving news articles based on pre-defined topics. The site runs as a Flask app and connects to a MongoDB database. The frontend is enhanced with Bootstrap and the API was created using NodeJS, Express & Mongoose. Developed as part of a Masters-Level group project in Maynooth University
 
 ## Installation & Setup: 
-### Ubuntu 18.04
 
 Install libraries:
 
+For Ubuntu 18.04:
+
 ```
-$ pip install requirements.txt
+$ pip install -r requirements_ubuntu1804.txt
+```
+
+For Windows:
+```
+$ pip install -r requirements_windows.txt
+```
+
+Install node packages
+```
 $ cd nodejs
 $ npm install
 ```
