@@ -9,11 +9,14 @@ import base64
 import hashlib
 import feedparser
 import requests
+import random
 
 """
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-This is the Flask app used for the site backend. It accesses the database and handles login, user creation, password encryption, a UI for consumption of the API and shows the topics, channels, etc
+This is the Flask app used for the site backend. It accesses the database and handles login, user creation, password encryption, a UI for consumption of the API, click logging
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 """
 app = Flask(__name__, static_url_path='/static')
 
@@ -24,7 +27,6 @@ login_manager.init_app(app)
 
 # Connect to the MongoDB Database
 client = MongoClient("mongodb+srv://stephen:l98waDrJSyCUspzw@newsy-98fzw.mongodb.net/test?retryWrites=true&w=majority")
-
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Password Encryption
@@ -45,7 +47,7 @@ def encrypt(raw, key):
 	cipher = AES.new(private_key, AES.MODE_CBC, iv)
 	return base64.b64encode(iv + cipher.encrypt(raw))
 
-# Code to decrypt the encrypted passwords in memory
+# Code to decrypt the encrypted passwords stored in the MongoDB database
 def decrypt(enc, raw):
 	private_key = hashlib.sha256(key.encode("utf-8")).digest()
 	enc = base64.b64decode(enc)
@@ -59,7 +61,7 @@ def decrypt(enc, raw):
 # Users/Login
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# User class, inherits defaults traits from flask-login that are needed for the login manager
+# User class, inherits default traits from flask-login that are needed for the login manager
 class User(flask_login.UserMixin):
 	pass
 
@@ -186,7 +188,7 @@ def homepage():
 	
 	for url in url_list:
 		feed = feedparser.parse(url)
-		for i in range(5): # Get 5 articles from the list of articles in the database
+		for i in range(5): # Get 5 articles from each feed
 			try:
 				thumbnails.append(feed['items'][i]['media_content'][0]['url']) # Some RSS feeds seem to have different layouts for their images
 			except:
@@ -194,10 +196,11 @@ def homepage():
 			titles.append(feed['items'][i]['title'])
 			actuallinks.append(feed['items'][i]['link'])
 	
+	# Update the articles database to keep a persistent log of all articles pulled
 	for i in range(len(actuallinks)):
 		query = {'url':actuallinks[i]}
 		newval = {'$set': {'url': actuallinks[i], 'image': thumbnails[i], 'title':titles[i]}}
-		client.newsy.articles.update(query, newval, True)
+		client.newsy.articles.update(query, newval, True) # Upsert = True to prevent duplicates
 
 	# This takes the layout that Pradeep wrote in the frontend html and makes it so they dynamically change with the entries in the database
 	article_format = """
@@ -227,9 +230,11 @@ def homepage():
 		channel_format = """
 		<li class="list-group-item " type="button">
 						<div class="row">
-							<div class="col-9">{0}</div>
-							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
-							Toggle
+							<div class="col-6">{0}</div>
+							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">Toggle
+						</button>
+						<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
+							X
 						</button>
 						</div>
 					</li>
@@ -272,14 +277,14 @@ def homepage():
 	else:
 		channel_list = [i['name'] for i in enabled_channels]
 
-
-	# channel_list = [i['name'] for i in client.newsy.Channel.find({'enabled': {'$eq': True}})]
 	channel_html = ""
 	for i in channel_list:
 		channel_html += channel_format.format(i)
 	
 	article_html = ""
-	for i in range(len(thumbnails)):
+	shuffle_articles = list(range(len(thumbnails)))
+	random.shuffle(shuffle_articles)
+	for i in shuffle_articles:
 		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
 
 	# Markup() will allow the html to render properly as a webpage, as opposed to plaintext
@@ -331,9 +336,11 @@ def topicpage(topic_keyword):
 		channel_format = """
 		<li class="list-group-item " type="button">
 						<div class="row">
-							<div class="col-9">{0}</div>
-							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-3">
-							Toggle
+							<div class="col-6">{0}</div>
+							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">Toggle
+						</button>
+						<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
+							X
 						</button>
 						</div>
 					</li>
@@ -446,6 +453,16 @@ def enablechannel(enable_channel):
 		toggle['enabled'] = str(not(toggle['enabled'])).lower()
 		requests.patch('http://localhost:3000/channel/%s' % str(toggle['_id']), toggle)
 	return redirect('/home')
+
+# Route to delete a channel
+@app.route('/deletechannel/<enable_channel>')
+@flask_login.login_required
+def deletechannel(enable_channel):
+	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
+		toggle = client.newsy.channels.find({'name': {'$eq': enable_channel}})[0]
+		requests.delete('http://localhost:3000/channel/%s' % str(toggle['_id']))
+	return redirect('/home')
+
 
 # Log when a link is clicked
 @app.route('/clicked/<link>')
