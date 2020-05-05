@@ -1,15 +1,14 @@
-from __future__ import print_function
-from flask import Flask, request, render_template, redirect, Markup
-import flask_login
-from pymongo import MongoClient
-from Crypto.Cipher import AES
+from __future__ import print_function 								# Console logging
+from flask import Flask, request, render_template, redirect, Markup # Backend functions
+import flask_login 													# Login Manager
+from pymongo import MongoClient 									# Connect to MongoDB
+from Crypto.Cipher import AES 										# Encrypt passwords
 from Crypto import Random
-import os
 import base64
 import hashlib
-import feedparser
-import requests
-import random
+import feedparser 													# Parse RSS feeds
+import requests 													# Query API
+import random 														# Shuffle articles
 
 """
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -56,7 +55,6 @@ def decrypt(enc, raw):
 	cipher = AES.new(private_key, AES.MODE_CBC, iv)
 	return unpad(cipher.decrypt(enc[16:])).decode("utf-8")
 
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Users/Login
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -71,7 +69,7 @@ def new_user(form):
 	new_user_dict = {
 		"firstname":form['firstname'],
 		"lastname":form['lastname'],
-		"password":base64.b64encode(encrypt(form['password'],key)).decode("utf8"), #to be encrypted
+		"password":base64.b64encode(encrypt(form['password'],key)).decode("utf8"), # Encrypted
 		"gender":form['gender'],
 		"email":form['email'],
 		"phone":form['phone'],
@@ -85,7 +83,7 @@ def new_user(form):
 def check_login(form):
 	login = client['newsy']['login']
 	user = login.find_one({'email': {'$eq': form['email']}})
-	password = decrypt(user['password'],key)
+	password = decrypt(user['password'], key) # Decrypt password stored in memory to check if it matches
 	return password == form['password']
 
 # Check security question answer when attempting password reset
@@ -99,10 +97,11 @@ def check_reset(form):
 # Reset password
 def reset_password(form):
 	login = client['newsy']['login']
-	query = {"email":form['email']}
-	value = { "$set": {"password":encrypt(form['password'],key)}}
+	query = {"email": form['email']}
+	value = { "$set": {"password":encrypt(form['password'], key)}}
 	login.update_one(query, value)
 
+# Login manager
 @login_manager.user_loader
 def user_loader(email):
 	emails = []
@@ -110,8 +109,9 @@ def user_loader(email):
 		emails.append(i['email'])
 	if email not in emails: # Ensure user is valid
 		return
+	
 	user = User()
-	user.id = email
+	user.id = email # User session ID will correspond to their email
 	return user
 
 @login_manager.request_loader
@@ -122,6 +122,7 @@ def request_loader(request):
 		emails.append(i['email'])
 	if email not in emails:
 		return
+	
 	user = User()
 	user.id = email
 	return user
@@ -131,8 +132,8 @@ def request_loader(request):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Initial registration page
-@app.route('/', methods = ['GET','POST'])
-@app.route('/register', methods = ['GET','POST'])
+@app.route('/', methods = ['GET', 'POST'])
+@app.route('/register', methods = ['GET', 'POST'])
 def home():
 	if(request.method == "POST"):
 		new_user(request.form) # Create user using given registration details
@@ -141,7 +142,7 @@ def home():
 		return render_template('index.html')
 
 # Login page
-@app.route('/login',methods = ['GET','POST'])
+@app.route('/login',methods = ['GET', 'POST'])
 def login():
 	if(request.method == "POST"):
 		if(check_login(request.form)): # If login details are correct
@@ -155,7 +156,7 @@ def login():
 		return render_template('login.html')
 
 # Forgot password page
-@app.route('/forgotpass', methods=['GET','POST'])
+@app.route('/forgotpass', methods=['GET', 'POST'])
 def forgot_pw():
 	if(request.method == "POST"):
 		if(check_reset(request.form)): # If security question answered correctly
@@ -166,7 +167,7 @@ def forgot_pw():
 		return render_template('forgotpass.html')
 
 # Reset password page
-@app.route('/resetpass', methods=['GET','POST'])
+@app.route('/resetpass', methods=['GET', 'POST'])
 def resetpw():
 	if(request.method == "POST"):
 		reset_password(request.form)
@@ -175,11 +176,11 @@ def resetpw():
 		return render_template('resetpass.html')
 
 # Home page
-@app.route('/home', methods=['GET','POST'])
+@app.route('/home', methods=['GET', 'POST'])
 @flask_login.login_required # Require a user to log in if they want to use the site
 def homepage():
-	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
-	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']]
+	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']) # Check if user is an editor or not
+	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']] # Grab enabled feeds from API
 	url_list = [i['url'] for i in enabled_channels]
 	
 	thumbnails = []
@@ -187,10 +188,10 @@ def homepage():
 	actuallinks = []
 	
 	for url in url_list:
-		feed = feedparser.parse(url)
+		feed = feedparser.parse(url) # Parse each feed
 		for i in range(5): # Get 5 articles from each feed
 			try:
-				thumbnails.append(feed['items'][i]['media_content'][0]['url']) # Some RSS feeds seem to have different layouts for their images
+				thumbnails.append(feed['items'][i]['media_content'][0]['url']) # Some RSS feeds seem to have different layouts for their thumbnails
 			except:
 				thumbnails.append('')
 			titles.append(feed['items'][i]['title'])
@@ -199,45 +200,49 @@ def homepage():
 	# Update the articles database to keep a persistent log of all articles pulled
 	for i in range(len(actuallinks)):
 		query = {'url':actuallinks[i]}
-		newval = {'$set': {'url': actuallinks[i], 'image': thumbnails[i], 'title':titles[i]}}
+		newval = {'$set': {
+			'url': actuallinks[i], 
+			'image': thumbnails[i], 
+			'title':titles[i]}}
 		client.newsy.articles.update(query, newval, True) # Upsert = True to prevent duplicates
 
 	# This takes the layout that Pradeep wrote in the frontend html and makes it so they dynamically change with the entries in the database
 	article_format = """
 	<li class="col-4">
-						<div class="card">
-							<img src="{0}" class="card-img-top" alt="...">
-							<div class="card-body">
-								<h5 class="card-title">{1}</h5>
-								<a href="/clicked/{2}" target = "_blank" class="btn btn-primary">Click</a>
-							</div>
-						</div>
-					</li>
+		<div class="card">
+			<img src="{0}" class="card-img-top" alt="...">
+			<div class="card-body">
+				<h5 class="card-title">{1}</h5>
+				<a href="/clicked/{2}" target = "_blank" class="btn btn-primary">Click</a>
+			</div>
+		</div>
+	</li>
 	"""
 	
-	# We want to ensure that editors can access the API through this site, so the page presented will be slightly different
+	# We want to ensure that editors can access the API through this site, so their page presented will be slightly different
 	if(editor_logged):
 		topic_format = """
 		<li class="list-group-item">
-						<div class="row">
-							<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
-							<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
-							X
-						</button>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+				<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+					X
+				</button>
+			</div>
+		</li>
 		"""
 		channel_format = """
 		<li class="list-group-item " type="button">
-						<div class="row">
-							<div class="col-6">{0}</div>
-							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">Toggle
-						</button>
-						<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
-							X
-						</button>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-6">{0}</div>
+				<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">
+					Toggle
+				</button>
+				<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
+					X
+				</button>
+			</div>
+		</li>
 		"""
 		add_button_channel = """
 		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
@@ -248,18 +253,18 @@ def homepage():
 	else:
 		topic_format = """
 		<li class="list-group-item">
-						<div class="row">
-							<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
-							</div>
-					</li>
+			<div class="row">
+				<div class="col-9" onclick = "location.href='topic/{0}'" type="button">{0}</div>
+			</div>
+		</li>
 		"""
 
 		channel_format = """
 		<li class="list-group-item " type="button">
-						<div class="row">
-							<div class="col-9">{0}</div>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-9">{0}</div>
+			</div>
+		</li>
 		"""
 		add_button_channel = ""
 		add_button_topic = ""
@@ -271,7 +276,7 @@ def homepage():
 		topic_html += topic_format.format(i)
 
 	channel_list = [i['name'] for i in requests.get('http://localhost:3000/channel/').json()['feeds']]
-	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']]
+	enabled_channels = [i for i in requests.get('http://localhost:3000/channel/').json()['feeds'] if i['enabled']] # Editors will see every channel on the sidebar, so they can enable disabled ones
 	if(editor_logged):
 		channel_list = [i['name'] for i in requests.get('http://localhost:3000/channel/').json()['feeds']]
 	else:
@@ -285,10 +290,14 @@ def homepage():
 	shuffle_articles = list(range(len(thumbnails)))
 	random.shuffle(shuffle_articles)
 	for i in shuffle_articles:
-		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
+		article_html += article_format.format(
+											thumbnails[i],
+											titles[i],
+											actuallinks[i].replace("/","€€€€€"))
 
 	# Markup() will allow the html to render properly as a webpage, as opposed to plaintext
-	return render_template('home.html', 
+	return render_template(
+		'home.html', 
 		topic = Markup(topic_html), 
 		channels = Markup(channel_html), 
 		articles = Markup(article_html),
@@ -302,48 +311,48 @@ def homepage():
 def topicpage(topic_keyword):
 	
 	# Having AND in the topic changes the search, so we need to account for that
-	if "AND" in topic_keyword:
-		compound = True
+	compound = "AND" in topic_keyword
+	if compound:
 		keywords = topic_keyword.replace(" ", "").split("AND")
 	else:
-		compound = False
 		keywords = topic_keyword.split(" ")
 	
 	article_format = """
 	<li class="col-4">
-						<div class="card">
-							<img src="{0}" class="card-img-top" alt="...">
-							<div class="card-body">
-								<h5 class="card-title">{1}</h5>
-								<a href="/clicked/{2}" target = "_blank" class="btn btn-primary">Click</a>
-							</div>
-						</div>
-					</li>
+		<div class="card">
+			<img src="{0}" class="card-img-top" alt="...">
+			<div class="card-body">
+				<h5 class="card-title">{1}</h5>
+				<a href="/clicked/{2}" target = "_blank" class="btn btn-primary">Click</a>
+			</div>
+		</div>
+	</li>
 	"""
 
 	editor_logged = (client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor'])
 	if(editor_logged):
 		topic_format = """
 		<li class="list-group-item">
-						<div class="row">
-							<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
-							<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
-							X
-						</button>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
+				<button type="button" onclick = "location.href='/removetopic/{0}'" class="btn btn-outline-dark btn-sm col-3">
+						X
+				</button>
+			</div>
+		</li>
 		"""
 		channel_format = """
 		<li class="list-group-item " type="button">
-						<div class="row">
-							<div class="col-6">{0}</div>
-							<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">Toggle
-						</button>
-						<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
-							X
-						</button>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-6">{0}</div>
+				<button type="button" onclick = "location.href='/enablechannel/{0}'" class="btn btn-primary col-4">
+					Toggle
+				</button>
+				<button type="button" onclick = "location.href='/deletechannel/{0}'" class="btn btn-primary col-2">
+					X
+				</button>
+			</div>
+		</li>
 		"""
 		add_button_channel = """
 		<button type="button" class="btn col-3" data-toggle="modal" data-target="#addChannelModal">Add</button>
@@ -354,18 +363,18 @@ def topicpage(topic_keyword):
 	else:
 		topic_format = """
 		<li class="list-group-item">
-						<div class="row">
-							<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
-							</div>
-					</li>
+			<div class="row">
+				<div class="col-9" onclick = "location.href='{0}'" type="button">{0}</div>
+			</div>
+		</li>
 		"""
 
 		channel_format = """
 		<li class="list-group-item " type="button">
-						<div class="row">
-							<div class="col-9">{0}</div>
-						</div>
-					</li>
+			<div class="row">
+				<div class="col-9">{0}</div>
+			</div>
+		</li>
 		"""
 		add_button_channel = ""
 		add_button_topic = ""
@@ -389,12 +398,14 @@ def topicpage(topic_keyword):
 	
 	# Use regex to take the necessary articles
 	if compound:
-		reg = "%s" + "|%s"*(len(keywords)-1) + ".*"
-		reg2 = ".*" + reg*(len(keywords))
+		reg = "(%s" + "|%s"*(len(keywords)-1) + "){1}.*"
+		reg2 = ".*" + reg*(len(keywords)) # This allows for multiple keywords
+
 		extended = []
 		for i in range(len(keywords)):
 			extended.extend(keywords)
-		for article in client.newsy.articles.find({'title': {'$regex': reg2 % tuple(extended), '$options': 'i'}}):
+		print(reg2 % tuple(extended))
+		for article in client.newsy.articles.find({'title': {'$regex': reg2 % tuple(extended), '$options': 'i'}}): # Options = i makes it case insensitive
 				actuallinks.append(article['url'])
 				thumbnails.append(article['image'])
 				titles.append(article['title'])
@@ -406,7 +417,10 @@ def topicpage(topic_keyword):
 				titles.append(article['title'])
 	
 	for i in range(len(thumbnails)):
-		article_html += article_format.format(thumbnails[i],titles[i],actuallinks[i].replace("/","€€€€€"))
+		article_html += article_format.format(
+											thumbnails[i],
+											titles[i],
+											actuallinks[i].replace("/","€€€€€"))
 
 	return render_template('home.html', 
 		topic = Markup(topic_html), 
@@ -433,7 +447,7 @@ def addchannel():
 			'url':request.form['url'],
 			'enabled':"true"}
 		print(new_entry)
-		requests.post('http://localhost:3000/channel', new_entry)
+		requests.post('http://localhost:3000/channel', new_entry) # Query API to add new channel
 	return redirect('/home')
 
 # Route to remove a given topic
@@ -451,7 +465,8 @@ def enablechannel(enable_channel):
 	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
 		toggle = client.newsy.channels.find({'name': {'$eq': enable_channel}})[0]
 		toggle['enabled'] = str(not(toggle['enabled'])).lower()
-		requests.patch('http://localhost:3000/channel/%s' % str(toggle['_id']), toggle)
+
+		requests.patch('http://localhost:3000/channel/%s' % str(toggle['_id']), toggle) # Query API to toggle channel
 	return redirect('/home')
 
 # Route to delete a channel
@@ -459,19 +474,18 @@ def enablechannel(enable_channel):
 @flask_login.login_required
 def deletechannel(enable_channel):
 	if(client.newsy.login.find_one({'email': {'$eq': flask_login.current_user.id}})['editor']):
-		toggle = client.newsy.channels.find({'name': {'$eq': enable_channel}})[0]
-		requests.delete('http://localhost:3000/channel/%s' % str(toggle['_id']))
+		to_delete = client.newsy.channels.find({'name': {'$eq': enable_channel}})[0]
+		requests.delete('http://localhost:3000/channel/%s' % str(to_delete['_id'])) # Query API to delete channel
 	return redirect('/home')
-
 
 # Log when a link is clicked
 @app.route('/clicked/<link>')
 def clicklink(link):
 	# We replace the / in the url with €€€€€ temporarily to allow the link to work properly with our routes. Hacky but it does the job
-	link = link.replace("€€€€€","/")
+	link = link.replace("€€€€€", "/")
 	query = {'url': {'$regex': '.*%s.*' % link}}
 	newval = {'$inc': {'count':1}} # Increment the count by 1
-	client.newsy.articles.update(query,newval, True) # True here denotes 'upserting', meaning if an entry has no 'count' variable it will be added
+	client.newsy.articles.update(query,newval, True) # Upsert = True, meaning if an entry has no 'count' variable it will be added
 	return redirect(link)
 
 # Log the user out
@@ -485,5 +499,5 @@ def logout():
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-	app.run(debug=True)
+	app.run()
 
